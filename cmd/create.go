@@ -8,20 +8,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"github.com/bishalpandit/taskbox/constants"
 )
 
-type Task struct {
-	Id int `json:"id"`
-    Title string `json:"title"`
-    Description string `json:"description"`
-	Tags []string `json:"tags"`
-	CreatedAt timestamppb.Timestamp `json:"createdAt"`
-	PriorityCode int16 `json:"priorityCode"`
-	ExpectedTime int16 `json:"expectedTime"`
-	DueTime int16 `json:"dueTime"`
-}
-
-var task = new(Task)
+var task = new(constants.Task)
 
 var CreateCmd = &cobra.Command{
 	Use:   "create",
@@ -41,7 +31,7 @@ var CreateCmd = &cobra.Command{
 			fmt.Println(err3)
 		}
 
-		var allTasks []Task
+		var allTasks []constants.Task
 		err := json.Unmarshal(b1, &allTasks)
 		if err != nil {
 			fmt.Println(err)

@@ -8,7 +8,12 @@ import (
 
 	"github.com/bengadbois/flippytext"
 	"github.com/spf13/cobra"
+	"github.com/bishalpandit/taskbox/constants"
 )
+
+
+
+var view = new(constants.View)
 
 // listCmd represents the list command
 var ListCmd = &cobra.Command{
@@ -21,7 +26,7 @@ var ListCmd = &cobra.Command{
 			fmt.Println(err)
 		}
 
-		var allTasks []Task
+		var allTasks []constants.Task
 		if err := json.Unmarshal(b, &allTasks)
 		err != nil {
 			fmt.Println(err)
@@ -41,5 +46,5 @@ var ListCmd = &cobra.Command{
 }
 
 func init() {
-
+	CreateCmd.Flags().StringVarP(&view.Sort, "sort", "s", "", "Sort based on creation time and priority");
 }
