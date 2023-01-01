@@ -3,6 +3,7 @@ module github.com/bishalpandit/taskbox
 go 1.19
 
 require (
+	github.com/bengadbois/flippytext v0.0.0-20170831014813-0d8b102e60fe // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
