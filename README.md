@@ -8,5 +8,5 @@ Go based task management CLI-based utility mainly aimed for terminal lovers with
 
 ## How to use
 
-1. Build the repo locally using ```go build .`
+1. Build the repo locally using ```go build .```
 2. Put the binary in ```go/src/bin```

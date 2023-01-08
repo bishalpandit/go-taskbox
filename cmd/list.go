@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/bengadbois/flippytext"
-	"github.com/bishalpandit/taskbox/cache"
 	"github.com/bishalpandit/taskbox/constants"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -44,35 +43,49 @@ func sortTasksByTimestamp(order string, tasks *[]constants.Task) {
 	}
 }
 
+func takeNTasks(n int32, tasks *[]constants.Task) []constants.Task {
+	if n > int32(len(*tasks)) {
+		return *tasks
+	}
+
+	return (*tasks)[:n]
+}
+
 var ListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all your tasks.",
 	Long: `List all your tasks.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var allTasks []constants.Task
-		var key string
 
-		tasksCache, err := cache.GetTasks(key);
+		b, err := os.ReadFile("./data/tasks.json")
 		if err != nil {
-			b, err := os.ReadFile("./data/tasks.json")
-			if err != nil {
+			fmt.Println(err)
+		}
+
+		if err := json.Unmarshal(b, &allTasks)
+		err != nil {
+			fmt.Println(err)
+		}
+		
+		if view.Sort != "" {
+			if view.Sort != "asc" && view.Sort != "desc" {
+				err :=errors.New("invalid sort order. Use asc or desc")
 				fmt.Println(err)
+				os.Exit(2)
 			}
-	
-			if err := json.Unmarshal(b, &allTasks)
-			err != nil {
+
+			sortTasksByTimestamp(view.Sort, &allTasks);
+		}
+
+		if view.Tail != -1 {
+			if view.Tail < 1 {
+				err :=errors.New("invalid sort order. Use asc or desc")
 				fmt.Println(err)
+				os.Exit(1)
 			}
-			
-			if view.Sort != "" {
-				if (view.Sort != "asc" || view.Sort != "desc") {
-					err :=errors.New("invalid sort order. Use asc or desc")
-					fmt.Println(err)
-				}
-			}
-			cache.SetTasks(key, allTasks)
-		} else {
-			allTasks = tasksCache
+
+			allTasks = takeNTasks(view.Tail, &allTasks)
 		}
 
 		data, err1 := json.MarshalIndent(allTasks, "", "   ")
@@ -89,5 +102,6 @@ var ListCmd = &cobra.Command{
 }
 
 func init() {
-	CreateCmd.Flags().StringVarP(&view.Sort, "sort", "s", "", "Sort based on creation time and priority");
+	ListCmd.Flags().StringVarP(&view.Sort, "sort", "s", "", "Sort based on creation time and priority");
+	ListCmd.Flags().Int32VarP(&view.Tail, "tail", "t", -1, "Retrieve last N tasks");
 }

@@ -16,6 +16,7 @@ type Task struct {
 }
 
 type View struct {
+	Tail int32
 	Sort string
 	Filter string
 	Regex string
