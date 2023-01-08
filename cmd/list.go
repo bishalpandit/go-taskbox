@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"strings"
 
 	"github.com/bengadbois/flippytext"
 	"github.com/bishalpandit/taskbox/constants"
@@ -51,6 +52,39 @@ func takeNTasks(n int32, tasks *[]constants.Task) []constants.Task {
 	return (*tasks)[:n]
 }
 
+func parseTags(tagsStr string) ([]string, error) {
+	return strings.Split(tagsStr, " "), nil
+}
+
+func filterByTags(tasks *[]constants.Task, tags []string) []constants.Task {
+	tagsCount := 0
+	var result []constants.Task
+
+	set := make(map[string]struct{})
+	for _, s := range tags {
+		strTrimmed := strings.TrimSpace(s)
+		set[strTrimmed] = struct{}{}
+	}
+
+	for _, task := range *tasks {
+		tagsPresent := task.Tags
+
+		for _, tag := range tagsPresent {
+			tagTrimmed := strings.TrimSpace(tag)
+			if _, ok := set[tagTrimmed]; ok {
+				tagsCount++
+			}
+		}
+
+		if tagsCount == len(set) {
+			result = append(result, task)
+		}
+		tagsCount = 0
+	}
+
+	return result
+}
+
 var ListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all your tasks.",
@@ -72,7 +106,7 @@ var ListCmd = &cobra.Command{
 			if view.Sort != "asc" && view.Sort != "desc" {
 				err :=errors.New("invalid sort order. Use asc or desc")
 				fmt.Println(err)
-				os.Exit(2)
+				os.Exit(1)
 			}
 
 			sortTasksByTimestamp(view.Sort, &allTasks);
@@ -80,15 +114,26 @@ var ListCmd = &cobra.Command{
 
 		if view.Tail != -1 {
 			if view.Tail < 1 {
-				err :=errors.New("invalid sort order. Use asc or desc")
+				err :=errors.New("invalid input. Give a value > 0")
 				fmt.Println(err)
-				os.Exit(1)
+				os.Exit(2)
 			}
 
 			allTasks = takeNTasks(view.Tail, &allTasks)
 		}
 
-		data, err1 := json.MarshalIndent(allTasks, "", "   ")
+		if view.TagFilter != "" {
+			tags, err := parseTags(view.TagFilter)
+			if err != nil {
+				err := errors.New("Tags parsing error!")
+				fmt.Println(err)
+				os.Exit(3)
+			}
+
+			allTasks = filterByTags(&allTasks, tags)
+		}
+
+		data, err1 := json.MarshalIndent(&allTasks, "", "   ")
 		if err1 != nil {
 			fmt.Println(err1)
 		}
@@ -103,5 +148,6 @@ var ListCmd = &cobra.Command{
 
 func init() {
 	ListCmd.Flags().StringVarP(&view.Sort, "sort", "s", "", "Sort based on creation time and priority");
+	ListCmd.Flags().StringVarP(&view.TagFilter, "include", "i", "", "Filter tasks by tags assigned to them");
 	ListCmd.Flags().Int32VarP(&view.Tail, "tail", "t", -1, "Retrieve last N tasks");
 }
