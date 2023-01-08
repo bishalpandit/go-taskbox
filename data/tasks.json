@@ -13,19 +13,6 @@
         "dueTime": -1
     },
     {
-        "id": 150,
-        "title": "fuck off",
-        "description": "",
-        "tags": null,
-        "createdAt": {
-            "seconds": 1672586814,
-            "nanos": 650534800
-        },
-        "priorityCode": -1,
-        "expectedTime": -1,
-        "dueTime": -1
-    },
-    {
         "id": 1559,
         "title": "Lets go",
         "description": "",
