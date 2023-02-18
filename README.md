@@ -1,4 +1,4 @@
-# Toolbox CLI utility
+# Taskbox CLI utility
 
 Go based task management CLI-based utility mainly aimed for terminal lovers with auto-priority scheduling, tag-based filtering, etc.
 
